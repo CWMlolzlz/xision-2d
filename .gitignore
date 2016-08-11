@@ -32,6 +32,7 @@
 
 # IntelliJ
 /out/
+Xision.iml
 
 # mpeltonen/sbt-idea plugin
 .idea_modules/
@@ -67,12 +68,6 @@ local.properties
 # Locally stored "Eclipse launch configurations"
 *.launch
 
-# PyDev specific (Python IDE for Eclipse)
-*.pydevproject
-
-# CDT-specific (C/C++ Development Tooling)
-.cproject
-
 # JDT-specific (Eclipse Java Development Tools)
 .classpath
 
@@ -84,15 +79,6 @@ local.properties
 
 # sbteclipse plugin
 .target
-
-# Tern plugin
-.tern-project
-
-# TeXlipse plugin
-.texlipse
-
-# STS (Spring Tool Suite)
-.springBeans
 
 # Code Recommenders
 .recommenders/
