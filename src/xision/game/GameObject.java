@@ -87,6 +87,14 @@ public abstract class GameObject implements Drawable, Dynamic{
         return children.stream().filter(cluzz::isInstance).map(go -> (T) go).findFirst().orElse(null);
     }
 
+
+    public void move(Vec2 v){
+        this.position = this.position.add(v);
+    }
+    public void move(float x, float y){
+        move(new Vec2(x,y));
+    }
+
     protected abstract void draw(Graphics2D g);
 
     public void lateUpdate(){}
