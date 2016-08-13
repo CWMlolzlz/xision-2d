@@ -14,7 +14,11 @@ import java.util.*;
 public final class Server implements Connection{
 
     private final ServerSocket hostSocket;
-    private final List<NetworkConnection> clients = new ArrayList<>();
+    private final List<TCPConnection> clients = new ArrayList<>();
+
+    //stores accumulated listeners to attach to new connections
+    private final Map<Class<? extends Message>, List<ConnectionEventListener>> listeners = new HashMap<>();
+
     private final XisionGame game;
     private final Thread thread;
 
@@ -34,7 +38,12 @@ public final class Server implements Connection{
             // listen for new connections
             try{
                 Socket clientSocket = hostSocket.accept();
-                NetworkConnection connection = new NetworkConnection(game, clientSocket);
+                TCPConnection connection = new TCPConnection(game, clientSocket);
+                for(Map.Entry<Class<? extends Message>, List<ConnectionEventListener>> listenerEntry : listeners.entrySet()){
+                    for(ConnectionEventListener l : listenerEntry.getValue()){
+                        connection.bind(listenerEntry.getKey(), l);
+                    }
+                }
                 connection.connect();
                 clients.add(connection);
                 sendTo(new StringMessage("Echo"), connection.getSocket());
@@ -48,16 +57,22 @@ public final class Server implements Connection{
     @Override
     public <M extends Message> void bind(Class<M> cluzz, ConnectionEventListener<? extends M> listener){
         clients.forEach((client) -> client.bind(cluzz,listener));
+        listeners.putIfAbsent(cluzz,new ArrayList<>());
+        listeners.get(cluzz).add(listener);
     }
 
     @Override
     public <M extends Message> void unbind(Class<M> cluzz){
         clients.forEach((client) -> client.unbind(cluzz));
+        listeners.remove(cluzz);
     }
 
     @Override
     public <M extends Message> void unbind(Class<M> cluzz, ConnectionEventListener<? extends M> listener){
         clients.forEach((client) -> client.unbind(cluzz, listener));
+        if(listeners.containsKey(cluzz)){
+            listeners.get(cluzz).remove(listener);
+        }
     }
 
     @Override
@@ -65,12 +80,21 @@ public final class Server implements Connection{
         clients.forEach((client) -> client.send(m));
     }
 
-    public void sendTo(Message m, Socket... sockets){
+    public void sendTo(Message m, Socket socket, Socket... sockets){
         clients.stream().filter(client -> {
             for(Socket s : sockets){ //if its one of the target sockets
                 if(client.getSocket().equals(s)) return true;
             }
             return false;
+        }).forEach(client -> client.send(m)); //send through that connection
+    }
+
+    public void sendExclude(Message m, Socket socket, Socket... sockets){
+        clients.stream().filter(client -> {
+            for(Socket s : sockets){ //if its one of the target sockets
+                if(client.getSocket().equals(s)) return false;
+            }
+            return true;
         }).forEach(client -> client.send(m)); //send through that connection
     }
 
