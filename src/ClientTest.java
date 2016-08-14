@@ -1,5 +1,5 @@
 import xision.communication.messages.StringMessage;
-import xision.communication.network.NetworkConnection;
+import xision.communication.network.TCPConnection;
 import xision.game.XisionGame;
 
 import java.io.IOException;
@@ -12,11 +12,11 @@ public class ClientTest{
 	public static void main(String[] args) throws IOException{
 		XisionGame game = XisionGame.create("Client",300, 300);
 
-		NetworkConnection client = ServerTestUtil.startClient(game,"localhost",5000);
+		TCPConnection client = ServerTestUtil.startClient(game,"localhost",5000);
 
 		client.bind(StringMessage.class,(s,m) -> System.out.println(m.getString()));
 
-		client.connect();
+		client.start();
 
 	}
 
