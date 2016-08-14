@@ -1,7 +1,7 @@
 import xision.game.GameObject;
 import xision.game.XisionGame;
 import xision.game.input.Key;
-import xision.game.objects.InputBinder;
+import xision.game.input.KeyBinder;
 import xision.math.vector.Vec2;
 
 import java.awt.*;
@@ -33,14 +33,14 @@ public class GameTest{
 
     private static class Player extends GameObject{
 
-        private final InputBinder inputBinder;
+        private final KeyBinder inputBinder;
 
         public Player(XisionGame game, GameObject parent){
             super(game, parent);
 
             this.size = new Vec2(100,100);
 
-            inputBinder = new InputBinder(game, this, game.input);
+            inputBinder = new KeyBinder(game, this, game.input);
 
             inputBinder.bind(Key.KEY_UP, () -> this.position = this.position.add(new Vec2(0,-1)));
             inputBinder.bind(Key.KEY_DOWN, () -> this.position = this.position.add(new Vec2(0,1)));
