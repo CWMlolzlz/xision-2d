@@ -21,6 +21,11 @@ public final class XisionGame{
     private Set<GameObject> gameObjects = new HashSet<>();
     private Set<Dynamic> dynamics = new HashSet<>();
     private Set<Drawable> drawables = new HashSet<>();
+
+    private Set<GameObject> newGameObjectsBuffer = new HashSet<>();
+    private Set<Dynamic> newDynamicsBuffer = new HashSet<>();
+    private Set<Drawable> newDrawablesBuffer = new HashSet<>();
+
     private boolean showDebugLayer = false;
     private boolean exit = false;
     private Thread thread;
@@ -91,7 +96,9 @@ public final class XisionGame{
     private void launch(){
         this.thread = new Thread(() -> {
             while(!exit){
+                XisionGame.this.cleanOutBuffers();
                 XisionGame.this.update();
+                XisionGame.this.dynamics.forEach(Dynamic::lateUpdate); //call late updates
                 try{
                     Thread.sleep((int)(secondsPerFrame * 1000));
                 }catch(InterruptedException e){
@@ -102,6 +109,18 @@ public final class XisionGame{
         });
         this.thread.start();
     }
+
+    private void cleanOutBuffers(){
+        gameObjects.addAll(newGameObjectsBuffer);
+        newGameObjectsBuffer.clear();
+
+        drawables.addAll(newDrawablesBuffer);
+        newDrawablesBuffer.clear();
+
+        dynamics.addAll(newDynamicsBuffer);
+        newDynamicsBuffer.clear();
+    }
+
 
     private void update(){
 
@@ -119,7 +138,7 @@ public final class XisionGame{
             if(d instanceof GameObject && ((GameObject) d).getParent() != null){
                 continue;
             }
-            d.draw(g2d);
+            d.render(g2d);
         }
 
         if(showDebugLayer){
@@ -147,17 +166,17 @@ public final class XisionGame{
 
     public void addDrawable(Drawable r){
         if(r == null) throw new RuntimeException("Null is not a valid Drawable");
-        drawables.add(r);
+        newDrawablesBuffer.add(r);
     }
 
     public void addDynamic(Dynamic d){
         if(d == null) throw new RuntimeException("Null is not a valid Dynamic");
-        dynamics.add(d);
+        newDynamicsBuffer.add(d);
     }
 
     public void addGameObject(GameObject go){
         if(go == null) throw new RuntimeException("Null is not a valid GameObject");
-        gameObjects.add(go);
+        newGameObjectsBuffer.add(go);
         addDrawable(go);
         addDynamic(go);
     }
