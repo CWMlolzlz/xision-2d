@@ -31,7 +31,7 @@ public abstract class AbstractConnection implements Connection{ //E is the type 
     public abstract void send(Message m);
 
     @SuppressWarnings("unchecked")
-    public <M extends Message> void dispatch(ConnectionEvent<? extends M> event){
+    protected  <M extends Message> void dispatch(ConnectionEvent<? extends M> event){
         Class<? extends Message> messageClass = event.getMessage().getClass();
         if(bindings.containsKey(messageClass)){
             for(ConnectionEventListener<?> listener : bindings.get(messageClass)){
