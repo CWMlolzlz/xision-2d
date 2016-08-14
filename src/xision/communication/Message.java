@@ -7,13 +7,13 @@ import java.io.Serializable;
  */
 public abstract class Message implements Serializable{
 
-    public enum TransmissionType{
+    /*public enum TransmissionMode{
         ECHO,
         NO_RETURN,
         NO_RETURN_BROADCAST,
         BROADCAST;
     }
 
-    public abstract TransmissionType getTransmissionMode();
+    public abstract TransmissionMode getTransmissionMode();*/
 
 }
