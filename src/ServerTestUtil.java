@@ -1,4 +1,4 @@
-import xision.communication.network.NetworkConnection;
+import xision.communication.network.TCPConnection;
 import xision.game.XisionGame;
 import xision.communication.network.Server;
 
@@ -13,8 +13,8 @@ public class ServerTestUtil{
         return new Server(game,port, 16);
     }
 
-    public static NetworkConnection startClient(XisionGame game, String host, int port) throws IOException{
-        NetworkConnection client = new NetworkConnection(game,host, port);
+    public static TCPConnection startClient(XisionGame game, String host, int port) throws IOException{
+        TCPConnection client = new TCPConnection(game,host, port);
         return client;
     }
 
