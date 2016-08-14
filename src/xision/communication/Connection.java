@@ -12,9 +12,9 @@ public interface Connection{
 
     <M extends Message> void unbind(Class<M> cluzz, ConnectionEventListener<? extends M> listener);
 
-    void connect();
+    void start();
 
     void send(Message m);
 
-    <M extends Message> void dispatch(ConnectionEvent<? extends M> event);
+    //<M extends Message> void dispatch(ConnectionEvent<? extends M> event);
 }
