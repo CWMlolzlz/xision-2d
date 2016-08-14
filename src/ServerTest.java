@@ -12,7 +12,7 @@ public class ServerTest{
 		XisionGame game = XisionGame.create("Server",300, 300);
 
 		Server server = ServerTestUtil.startServer(game,5000);
-		server.connect();
+		server.start();
 
 	}
 }
