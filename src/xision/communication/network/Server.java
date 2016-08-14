@@ -13,6 +13,9 @@ import java.util.*;
  */
 public final class Server implements Connection{
 
+
+    private final Map<Class<? extends Message>,List<ConnectionEventListener<? extends Message>>> bindings = new HashMap<>();
+
     private final ServerSocket hostSocket;
     private final List<TCPConnection> clients = new ArrayList<>();
 
@@ -28,7 +31,7 @@ public final class Server implements Connection{
         this.thread = new Thread(this::listenForConnections);
     }
 
-    public void connect(){
+    public void start(){
         if(thread.isAlive()) throw new RuntimeException("Server is already running");
         thread.start();
     }
@@ -44,18 +47,22 @@ public final class Server implements Connection{
                         connection.bind(listenerEntry.getKey(), l);
                     }
                 }
-                connection.connect();
+                connection.start();
                 clients.add(connection);
                 sendTo(new StringMessage("Echo"), connection.getSocket());
+
+                Thread.sleep(1);
+
             }catch(IOException e){
                 e.printStackTrace();
-            }
+            }catch(InterruptedException ignored){}
         }
     }
 
 
     @Override
     public <M extends Message> void bind(Class<M> cluzz, ConnectionEventListener<? extends M> listener){
+
         clients.forEach((client) -> client.bind(cluzz,listener));
         listeners.putIfAbsent(cluzz,new ArrayList<>());
         listeners.get(cluzz).add(listener);
@@ -82,15 +89,17 @@ public final class Server implements Connection{
 
     public void sendTo(Message m, Socket socket, Socket... sockets){
         clients.stream().filter(client -> {
+            if(client.getSocket().equals(socket)) return true;
             for(Socket s : sockets){ //if its one of the target sockets
                 if(client.getSocket().equals(s)) return true;
             }
             return false;
-        }).forEach(client -> client.send(m)); //send through that connection
+        }).forEach(connection -> connection.send(m)); //send through that connection
     }
 
     public void sendExclude(Message m, Socket socket, Socket... sockets){
         clients.stream().filter(client -> {
+            if(client.getSocket().equals(socket)) return false;
             for(Socket s : sockets){ //if its one of the target sockets
                 if(client.getSocket().equals(s)) return false;
             }
@@ -98,8 +107,8 @@ public final class Server implements Connection{
         }).forEach(client -> client.send(m)); //send through that connection
     }
 
-    @Override
+    /*@Override
     public <M extends Message> void dispatch(ConnectionEvent<? extends M> event){
         //todo: dispatch event to bindings
-    }
+    }*/
 }
