@@ -2,38 +2,33 @@ package xision.game.input;
 
 import xision.math.vector.Vec2;
 
-import javax.swing.event.MouseInputListener;
-import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.EnumSet;
 
 /**
  * Created by Connor on 7/08/2016.
  */
-public final class Input extends KeyAdapter implements MouseInputListener{
+public final class Input extends InputAdapter{
 
-    Set<Integer> keyMap = new HashSet<>();
-    Map<Integer, Boolean> mouseMap = new HashMap<>();
+    private EnumSet<Key> keyMap = EnumSet.noneOf(Key.class);
+    private EnumSet<MouseButton> mouseMap = EnumSet.noneOf(MouseButton.class);
     private Vec2 mousePosition = Vec2.ZERO;
 
-    public boolean isKeyDown(int keyValue){
+    public boolean isKeyDown(Key keyValue){
         return keyMap.contains(keyValue);
     }
 
-    public boolean isKeyUp(int keyValue){
-        return !keyMap.contains(keyValue);
+    public boolean isKeyUp(Key keyValue){
+        return !isKeyDown(keyValue);
     }
 
-    public boolean isMouseDown(int mouseButton){
-        return false;
+    public boolean isMouseDown(MouseButton mouseButton){
+        return mouseMap.contains(mouseButton);
     }
 
-    public boolean isMouseUp(int mouseButton){
-        return false;
+    public boolean isMouseUp(MouseButton mouseButton){
+        return !isMouseDown(mouseButton);
     }
 
     public Vec2 mousePosition(){
@@ -42,42 +37,22 @@ public final class Input extends KeyAdapter implements MouseInputListener{
 
     @Override
     public void keyPressed(KeyEvent e){
-        keyMap.add(e.getKeyCode());
+        keyMap.add(Key.fromInt(e.getKeyCode()));
     }
 
     @Override
     public void keyReleased(KeyEvent e){
-        keyMap.remove(e.getKeyCode());
-    }
-
-
-    @Override
-    public void mouseClicked(MouseEvent e){
+        keyMap.remove(Key.fromInt(e.getKeyCode()));
     }
 
     @Override
     public void mousePressed(MouseEvent e){
-        mouseMap.put(e.getButton(), true);
+        mouseMap.add(MouseButton.fromInt(e.getButton()));
     }
 
     @Override
     public void mouseReleased(MouseEvent e){
-        mouseMap.put(e.getButton(), false);
-    }
-
-    @Override
-    public void mouseEntered(MouseEvent e){
-
-    }
-
-    @Override
-    public void mouseExited(MouseEvent e){
-
-    }
-
-    @Override
-    public void mouseDragged(MouseEvent e){
-
+        mouseMap.remove(MouseButton.fromInt(e.getButton()));
     }
 
     @Override
