@@ -18,7 +18,7 @@ import java.util.List;
 /**
  * Created by Connor on 10/08/2016.
  */
-public class NetworkConnection extends AbstractConnection implements Dynamic{
+public class TCPConnection extends AbstractConnection implements Dynamic{
 
     protected final Socket socket;
     private final List<Message> sendBuffer = new ArrayList<>();
@@ -26,12 +26,12 @@ public class NetworkConnection extends AbstractConnection implements Dynamic{
     private final Thread listenThread;
     private final Thread sendThread;
 
-    public NetworkConnection(XisionGame game, String host, int port) throws IOException{
+    public TCPConnection(XisionGame game, String host, int port) throws IOException{
         this(game, new Socket(host, port));
 
     }
 
-    public NetworkConnection(XisionGame game, Socket socket){
+    public TCPConnection(XisionGame game, Socket socket){
         this.socket = socket;
 
         listenThread = new Thread(this::listenLoop);
@@ -41,7 +41,7 @@ public class NetworkConnection extends AbstractConnection implements Dynamic{
 
     }
 
-    public void connect(){
+    public void start(){
         if(sendThread.isAlive() && listenThread.isAlive())
             throw new RuntimeException("Client connections are already running");
         if(sendThread.isAlive() != listenThread.isAlive())
@@ -56,19 +56,21 @@ public class NetworkConnection extends AbstractConnection implements Dynamic{
             while(!socket.isClosed()){
                 try{
                     Message m = (Message) in.readObject();
-                    //synchronize once an object is read
+                    //once an object is read
                     synchronized(listenBuffer){
                         listenBuffer.add(new ConnectionEvent<>(socket, m));
                     }
                 }catch(ClassNotFoundException e){
                     e.printStackTrace();
-
-                }catch(EOFException | SocketException endOfConenction){ //other end has closed
-                    endOfConenction.printStackTrace();
+                }catch(EOFException | SocketException endOfConnection){ //other end has closed
+                    endOfConnection.printStackTrace();
                     socket.close();
                 }catch(IOException e){
                     e.printStackTrace();
                 }
+                try{
+                    Thread.sleep(1);
+                }catch(InterruptedException ignored){}
 
 
             }
@@ -84,7 +86,6 @@ public class NetworkConnection extends AbstractConnection implements Dynamic{
                 if(!sendBuffer.isEmpty()){
                     synchronized(sendBuffer){
                         for(Message m : sendBuffer){
-                            System.out.println(m.toString());
                             try{
                                 out.writeObject(m);
                                 out.flush();
@@ -95,6 +96,10 @@ public class NetworkConnection extends AbstractConnection implements Dynamic{
                         sendBuffer.clear();
                     }
                 }
+
+                try{
+                    Thread.sleep(1);
+                }catch(InterruptedException ignored){}
             }
         }catch(IOException e){
             e.printStackTrace();
