@@ -5,7 +5,7 @@ import xision.communication.Message;
 /**
  * Created by Connor on 11/08/2016.
  */
-public class NewPlayerMessage extends Message{
+public class NewPlayerMessage implements Message{
     public final int id;
     public NewPlayerMessage(int id){
         this.id = id;

@@ -5,7 +5,7 @@ import xision.communication.Message;
 /**
  * Created by Connor on 11/08/2016.
  */
-public class ActorMoveMessage extends Message{
+public class ActorMoveMessage implements Message{
 
     public final int actorID;
     public final float x,y;
